@@ -11,7 +11,28 @@ public class Request implements XtraCommunicate {
     private String command;
     private List<File> fileList;
     private String message;
+    private byte[] file;
+    private String answer;
 
+    @Override
+    public void setAnswer(String answer) {
+        this.answer = answer;
+    }
+
+    @Override
+    public String getAnswer() {
+        return this.answer;
+    }
+
+    @Override
+    public byte[] getFile() {
+        return file;
+    }
+
+    @Override
+    public void setFile(byte[] file){
+        this.file = file;
+    }
 
     @Override
     public String getFilename() {

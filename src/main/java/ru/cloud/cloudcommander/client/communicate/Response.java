@@ -1,4 +1,4 @@
-package ru.cloud.cloudcommander.server.communicate;
+package ru.cloud.cloudcommander.client.communicate;
 
 import ru.cloud.cloudcommander.XtraCommunicate;
 

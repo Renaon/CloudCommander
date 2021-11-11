@@ -20,4 +20,10 @@ public interface XtraCommunicate {
     public String getMessage();
     public void setMessage(String message);
 
+    public void setFile(byte[] file);
+    public byte[] getFile();
+
+    public void setAnswer(String answer);
+    public String getAnswer();
+
 }
