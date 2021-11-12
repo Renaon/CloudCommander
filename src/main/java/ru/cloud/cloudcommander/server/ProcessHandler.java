@@ -30,7 +30,6 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
         response = new Response();
         LOG.info("Someone connected");
         System.out.println(msg);
-        ctx.fireChannelRead(msg);
         if (msg.getCommand().equals("send")) saveFile(ctx, msg);
         else if (msg.getCommand().equals("ping")) {
             LOG.log(Level.INFO, msg.getMessage());
