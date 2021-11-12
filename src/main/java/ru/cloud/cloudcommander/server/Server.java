@@ -9,10 +9,11 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import io.netty.handler.codec.serialization.ClassResolver;
+import io.netty.handler.codec.serialization.ObjectDecoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.server.coders.ObjectDecoder;
 import ru.cloud.cloudcommander.server.coders.ObjectEncoder;
 
 
@@ -36,22 +37,21 @@ public class Server {
             //вот туть перехватываются сообщения от клиента
             bootstrap.group(boss, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                    .childHandler(new ChannelInitializer<Channel>() {
                         @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new LengthFieldBasedFrameDecoder(cube(1024, 3),
+                        protected void initChannel(Channel channel) throws Exception {
+                            channel.pipeline().addLast(
+                                    new LengthFieldBasedFrameDecoder(cube(1024, 3),
                                     0,
                                     8,
                                     0,
-                                    8));
-                            socketChannel.pipeline().addLast(
+                                    8),
                                     new LengthFieldPrepender(8),
                                     new ByteArrayDecoder(),
                                     new ByteArrayEncoder(),
                                     new ObjectDecoder(),
-                                    new ObjectEncoder(),
-                                    new ProcessHandler()
-                            );
+                                    new ObjectEncoder());
+                            channel.pipeline().addLast(new ProcessHandler());
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);

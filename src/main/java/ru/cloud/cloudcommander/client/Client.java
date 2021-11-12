@@ -10,11 +10,14 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
+import io.netty.handler.codec.serialization.ClassResolver;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.client.coders.ObjectDecoder;
-import ru.cloud.cloudcommander.client.coders.ObjectEncoder;
+import ru.cloud.cloudcommander.server.communicate.Request;
+import ru.cloud.cloudcommander.server.communicate.Response;
 
 
 public class Client {
@@ -30,6 +33,12 @@ public class Client {
 
     public void start() {
         NioEventLoopGroup con = new NioEventLoopGroup();
+        ClassResolver resolver = new ClassResolver() {
+            @Override
+            public Class<?> resolve(String s) throws ClassNotFoundException {
+                return null;
+            }
+        };
 
         try {
             ObjectMapper hui = new ObjectMapper();

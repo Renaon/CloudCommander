@@ -83,4 +83,6 @@ public class Response implements XtraCommunicate {
     public void setMessage(String message) {
         this.message = message;
     }
+
+
 }

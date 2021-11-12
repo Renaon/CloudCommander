@@ -1,9 +1,12 @@
 package ru.cloud.cloudcommander;
 
+import io.netty.handler.codec.serialization.ClassResolver;
+
 import java.io.File;
+import java.io.Serializable;
 import java.util.List;
 
-public interface XtraCommunicate {
+public interface XtraCommunicate extends Serializable {
 
     public String getFilename();
     public void setFilename(String filename);

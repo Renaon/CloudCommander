@@ -24,5 +24,6 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
         request.setCommand("ping");
         request.setMessage("It`s a test message");
         ctx.channel().writeAndFlush(request);
+        LOG.log(Level.INFO, "Message was sended");
     }
 }

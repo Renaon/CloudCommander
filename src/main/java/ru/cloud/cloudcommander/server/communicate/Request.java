@@ -5,7 +5,7 @@ import ru.cloud.cloudcommander.XtraCommunicate;
 import java.io.File;
 import java.util.List;
 
-public class Request implements XtraCommunicate {
+public class Request implements XtraCommunicate{
     private String filename;
     private int value;
     private String command;
@@ -83,4 +83,6 @@ public class Request implements XtraCommunicate {
     public void setMessage(String message) {
         this.message = message;
     }
+
+
 }
