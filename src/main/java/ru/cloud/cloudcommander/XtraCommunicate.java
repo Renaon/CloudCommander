@@ -14,8 +14,8 @@ public interface XtraCommunicate extends Serializable {
     public String getCommand();
     public void setCommand(String command);
 
-    public List<File> getFiles();
-    public void setFiles(List<File> files);
+    public List<String> getFiles();
+    public void setFiles(List<String> files);
 
     public int getValue();
     public void setValue(int value);

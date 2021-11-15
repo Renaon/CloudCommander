@@ -14,13 +14,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
-    private String rootPath = "ru/cloud/cloudcommander/server/root";
+    private String rootPath = "D://Projects//Cloud Commander//src//main//java//ru//cloud//cloudcommander//server//root//";
     private Logger LOG = LogManager.getLogger("log4j2.xml");
     private Response response;
 
@@ -38,6 +35,9 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
                 break;
             case "ping":
                 LOG.log(Level.INFO, msg.getMessage());
+                response.setCommand(msg.getCommand());
+                response.setAnswer("You are awesome!");
+                ctx.writeAndFlush(response);
                 break;
             case "get":
                 sendFile(ctx, msg);
@@ -51,16 +51,21 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
             case "cd":
                 setRootPath(msg.getMessage());
                 break;
+            case "report":
+                LOG.log(Level.INFO, "Operation " + msg.getCommand() + " " + msg.getMessage());
+                break;
+            case "exit":
+                LOG.log(Level.INFO, "Client want to disconnect");
         }
     }
 
     private void saveFile(ChannelHandlerContext ctx, Request msg) throws FileNotFoundException {
-        String filename = rootPath + msg.getFilename();
-        File file = new File(filename);
+        String filename = msg.getFilename();
+        File file = new File(rootPath, filename);
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")){
             raf.write(msg.getFile());
             response.setCommand(msg.getCommand());
-            response.setMessage("File already uploaded");
+            response.setMessage("File" + msg.getFilename() + "already uploaded");
             ctx.writeAndFlush(response);
         } catch (IOException e) {
             LOG.error("Не удалось получить файл");
@@ -69,7 +74,7 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
 
     private void sendFile(ChannelHandlerContext ctx, Request msg){
         response.setFilename(msg.getFilename());
-        File file = new File(rootPath + msg.getFilename());
+        File file = new File(rootPath, msg.getFilename());
         try {
             byte[] content = Files.readAllBytes(file.toPath());
             response.setFile(content);
@@ -83,7 +88,7 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
 
     private void ls(ChannelHandlerContext ctx, Request msg){
         File dir = new File(rootPath);
-        List<File> list = new ArrayList<>(Arrays.asList(Objects.requireNonNull(dir.listFiles())));
+        List<String> list = new ArrayList<String>(Collections.singleton(Arrays.asList(Objects.requireNonNull(dir.listFiles())).toString()));
         response.setFiles(list);
         response.setCommand(msg.getCommand());
         ctx.writeAndFlush(response);

@@ -9,7 +9,7 @@ public class Response implements XtraCommunicate {
     private String filename;
     private int value;
     private String command;
-    private List<File> fileList;
+    private List<String> fileList;
     private String message;
     private byte[] file;
     private String answer;
@@ -55,12 +55,12 @@ public class Response implements XtraCommunicate {
     }
 
     @Override
-    public List<File> getFiles() {
+    public List<String> getFiles() {
         return fileList;
     }
 
     @Override
-    public void setFiles(List<File> files) {
+    public void setFiles(List<String> files) {
         this.fileList = files;
     }
 
