@@ -5,16 +5,12 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.codec.bytes.ByteArrayDecoder;
-import io.netty.handler.codec.bytes.ByteArrayEncoder;
-import io.netty.handler.codec.serialization.ClassResolver;
+import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.server.coders.ObjectEncoder;
 
 
 public class Server {
@@ -37,30 +33,24 @@ public class Server {
             //вот туть перехватываются сообщения от клиента
             bootstrap.group(boss, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<Channel>() {
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
-                        protected void initChannel(Channel channel) throws Exception {
+                        protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline().addLast(
-                                    new LengthFieldBasedFrameDecoder(cube(1024, 3),
-                                    0,
-                                    8,
-                                    0,
-                                    8),
-                                    new LengthFieldPrepender(8),
-                                    new ByteArrayDecoder(),
-                                    new ByteArrayEncoder(),
-                                    new ObjectDecoder(),
-                                    new ObjectEncoder());
-                            channel.pipeline().addLast(new ProcessHandler());
+                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
+                                    new ObjectEncoder(),
+                                    new ProcessHandler()
+                            );
                         }
-                    }).option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    });
+//                    .option(ChannelOption.SO_BACKLOG, 128)
+//                    .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture f = bootstrap.bind(PORT).sync();
             LOG.log(Level.INFO, "Server started on " + PORT + " port");
             f.channel().closeFuture().sync();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOG.log(Level.ERROR, "Server error " + e);
         }
         finally {
             boss.shutdownGracefully();
@@ -79,8 +69,4 @@ public class Server {
         }
     }
 
-    private int cube(int a, int b){
-        if ( b ==1 ) return a;
-        else return (a * cube(a, b -1));
-    }
 }

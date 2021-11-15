@@ -10,14 +10,12 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.bytes.ByteArrayDecoder;
 import io.netty.handler.codec.bytes.ByteArrayEncoder;
-import io.netty.handler.codec.serialization.ClassResolver;
+import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.server.communicate.Request;
-import ru.cloud.cloudcommander.server.communicate.Response;
 
 
 public class Client {
@@ -33,12 +31,6 @@ public class Client {
 
     public void start() {
         NioEventLoopGroup con = new NioEventLoopGroup();
-        ClassResolver resolver = new ClassResolver() {
-            @Override
-            public Class<?> resolve(String s) throws ClassNotFoundException {
-                return null;
-            }
-        };
 
         try {
             ObjectMapper hui = new ObjectMapper();
@@ -48,16 +40,8 @@ public class Client {
                     .handler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel nioSocketChannel) throws Exception {
-                            nioSocketChannel.pipeline().addLast(new LengthFieldBasedFrameDecoder(degree(1024, 3),
-                                    0,
-                                    8,
-                                    0,
-                                    8));
                             nioSocketChannel.pipeline().addLast(
-                                    new LengthFieldPrepender(8),
-                                    new ByteArrayDecoder(),
-                                    new ByteArrayEncoder(),
-                                    new ObjectDecoder(),
+                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
                                     new ActionHandler()
                             );
