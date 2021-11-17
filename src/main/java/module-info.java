@@ -9,6 +9,9 @@ module ru.cloud.cloudcommander {
     requires org.kordamp.bootstrapfx.core;
     requires io.netty.all;
     requires org.apache.logging.log4j;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.databind;
+    requires com.fasterxml.jackson.annotation;
 
     opens ru.cloud.cloudcommander to javafx.fxml;
     exports ru.cloud.cloudcommander;
