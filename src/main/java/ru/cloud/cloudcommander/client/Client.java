@@ -1,6 +1,5 @@
 package ru.cloud.cloudcommander.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -13,10 +12,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.cloud.cloudcommander.client.communicate.Request;
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Scanner;
+import ru.cloud.cloudcommander.client.handlers.ActionHandler;
 
 
 public class Client {
@@ -27,8 +23,6 @@ public class Client {
     private static  String ADDRESS = "localhost";
     private NioEventLoopGroup con = new NioEventLoopGroup();
 
-    private String rootpath = "ru/cloud/cloudcommander/server/root";
-
     public Client(int port, String address) {
         PORT = port;
         ADDRESS = address;
@@ -38,7 +32,6 @@ public class Client {
         con = new NioEventLoopGroup();
 
         try {
-            ObjectMapper hui = new ObjectMapper();
             Bootstrap client = new Bootstrap();
             client.group(con)
                     .channel(NioSocketChannel.class)
@@ -60,51 +53,6 @@ public class Client {
         } finally {
             LOG.log(Level.ERROR, "Клиент пидр и решил отключиться самостоятельно");
             con.shutdownGracefully();
-        }
-    }
-
-    private void workLoop(ChannelFuture chf){
-        Scanner scanner = new Scanner(System.in);
-        String command;
-        label:
-        while (true){
-            System.out.println("Enter your actions \n");
-            command = scanner.nextLine();
-            switch (command) {
-                case "send":
-                    System.out.println("Введите имя загружаемого файла");
-                    request.setCommand(command);
-                    String filename = scanner.nextLine();
-                    request.setFilename(filename);
-                    File file = new File(rootpath + "/" + filename);
-                    try {
-                        byte[] content = Files.readAllBytes(file.toPath());
-                        request.setFile(content);
-                        chf.channel().writeAndFlush(request);
-                    } catch (IOException e) {
-                        LOG.log(Level.ERROR, "Cannot send a file");
-                    }
-                    break;
-                case "get":
-                    request.setCommand(command);
-                    System.out.println("Введите имя файла, который хотите получить");
-                    request.setFilename(scanner.nextLine());
-                    chf.channel().writeAndFlush(request);
-                    break;
-                case "break":
-                    try {
-                        LOG.log(Level.INFO, "You want to disconnect? Okay, let`s try!");
-                        chf.channel().closeFuture().sync();
-                        con.shutdownGracefully();
-                    } catch (InterruptedException e) {
-                        LOG.log(Level.ERROR, "Error when disconnect");
-                    }
-                    break label;
-                default:
-                    request.setCommand(command);
-                    chf.channel().writeAndFlush(request);
-                    break;
-            }
         }
     }
 

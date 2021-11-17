@@ -26,7 +26,7 @@ public interface XtraCommunicate extends Serializable {
     public void setFile(byte[] file);
     public byte[] getFile();
 
-    public void setAnswer(String answer);
-    public String getAnswer();
+    public void setPosition(long position);
+    public long getPosition();
 
 }

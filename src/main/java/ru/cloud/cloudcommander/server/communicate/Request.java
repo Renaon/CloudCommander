@@ -13,15 +13,16 @@ public class Request implements XtraCommunicate{
     private String message;
     private byte[] file;
     private String answer;
+    private long position;
 
     @Override
-    public void setAnswer(String answer) {
-        this.answer = answer;
+    public long getPosition(){
+        return position;
     }
 
     @Override
-    public String getAnswer() {
-        return this.answer;
+    public void setPosition(long position) {
+        this.position = position;
     }
 
     @Override
