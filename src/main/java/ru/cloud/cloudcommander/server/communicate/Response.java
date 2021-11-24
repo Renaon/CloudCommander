@@ -1,11 +1,10 @@
 package ru.cloud.cloudcommander.server.communicate;
 
-import ru.cloud.cloudcommander.XtraCommunicate;
+import ru.cloud.cloudcommander.CloudFacade;
 
-import java.io.File;
 import java.util.List;
 
-public class Response implements XtraCommunicate {
+public class Response implements CloudFacade {
     private String filename;
     private int value;
     private String command;

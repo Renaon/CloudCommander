@@ -5,17 +5,17 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.server.communicate.Request;
-import ru.cloud.cloudcommander.server.communicate.Response;
+import ru.cloud.cloudcommander.client.Client;
+import ru.cloud.cloudcommander.client.communicate.Request;
+import ru.cloud.cloudcommander.client.communicate.Response;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Scanner;
 
 public class ActionHandler extends SimpleChannelInboundHandler<Response> {
+
     private Logger LOG = LogManager.getLogger("log4j2.xml");
     private String rootPath = "D://Projects//Cloud Commander//src//main//java//ru//cloud//cloudcommander//client//clientroot//";
     private Request request = new Request();
@@ -32,7 +32,7 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
             }
         }
         LOG.log(Level.INFO, response.getCommand()+ ": " + response.getMessage());
-        workLoop(ctx);
+//        workLoop(ctx);
     }
 
     private void saveFile(Response msg) throws IOException {
@@ -45,12 +45,13 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx){
-        LOG.log(Level.INFO, "Right this sec send test message");
-        request = new Request();
-        request.setCommand("ping");
-        request.setMessage("It`s a test message");
-        ctx.writeAndFlush(request);
-        LOG.log(Level.INFO, "Message was sent");
+//        Client.setChannel(ctx.channel());
+//        LOG.log(Level.INFO, "Right this sec send test message");
+//        request = new Request();
+//        request.setCommand("ping");
+//        request.setMessage("It`s a test message");
+//        ctx.writeAndFlush(request);
+//        LOG.log(Level.INFO, "Message was sent");
     }
 
     private void workLoop(ChannelHandlerContext chf){
@@ -60,15 +61,9 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
             command = scanner.nextLine();
             switch (command) {
                 case "send":
-                    sendFile(chf, command, scanner);
-//                    File file = new File(rootPath + "/" + filename);
-//                    try {
-//                        byte[] content = Files.readAllBytes(file.toPath());
-//                        request.setFile(content);
-//                        chf.writeAndFlush(request);
-//                    } catch (IOException e) {
-//                        LOG.log(Level.ERROR, "Cannot send a file");
-//                    }
+                    System.out.println("Введите имя загружаемого файла");
+                    String filename = new Scanner(System.in).nextLine();
+                    sendFile(chf, command, filename);
                     break;
                 case "get":
                     request.setCommand(command);
@@ -87,9 +82,7 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
         }
     }
 
-    private void sendFile(ChannelHandlerContext ctx, String command, Scanner scanner){
-        System.out.println("Введите имя загружаемого файла");
-        String filename = scanner.nextLine();
+    private void sendFile(ChannelHandlerContext ctx, String command, String filename){
         request.setCommand(command);
         request.setFilename(filename);
         byte[] buffer = new byte[1024*512];
@@ -115,4 +108,5 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
         cause.printStackTrace();
         ctx.close();
     }
+
 }

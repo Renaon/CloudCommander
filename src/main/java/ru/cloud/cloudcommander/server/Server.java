@@ -11,6 +11,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.cloud.cloudcommander.server.communicate.Request;
 
 
 public class Server {
@@ -37,9 +38,10 @@ public class Server {
                         @Override
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline().addLast(
-                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
+                                    new ObjectDecoder(ClassResolvers.weakCachingResolver(Request.class.getClassLoader())),
                                     new ObjectEncoder(),
-                                    new ProcessHandler()
+                                    new ProcessHandler(),
+                                    new StringHandler()
                             );
                         }
                     });
