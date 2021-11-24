@@ -40,8 +40,7 @@ public class Server {
                             channel.pipeline().addLast(
                                     new ObjectDecoder(ClassResolvers.weakCachingResolver(Request.class.getClassLoader())),
                                     new ObjectEncoder(),
-                                    new ProcessHandler(),
-                                    new StringHandler()
+                                    new ProcessHandler()
                             );
                         }
                     })

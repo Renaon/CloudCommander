@@ -5,6 +5,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.cloud.cloudcommander.client.Client;
 import ru.cloud.cloudcommander.communicate.Request;
 import ru.cloud.cloudcommander.communicate.Response;
 import java.io.File;
@@ -15,69 +16,43 @@ import java.util.List;
 public class ActionHandler extends SimpleChannelInboundHandler<Response> {
 
     private Logger LOG = LogManager.getLogger("log4j2.xml");
-    private String rootPath = "D://Projects//Cloud Commander//src//main//java//ru//cloud//cloudcommander//client//clientroot//";
     private Request request = new Request();
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Response response) throws Exception {
         LOG.log(Level.INFO, "We are ready to catch server response");
-        if (response.getCommand().equals("get")){
-            saveFile(response);
-        }else if (response.getCommand().equals("ls")) {
-            List<String> list = response.getFiles();
-            for (String file : list) {
-                System.out.print(file + "; ");
-            }
+        switch (response.getCommand()) {
+            case "get":
+                saveFile(response);
+                break;
+            case "ls":
+//                List<String> list = response.getFiles();
+//                for (String file : list) {
+//                    System.out.print(file + "; ");
+//                }
+                Client.setFilesList(response.getFiles());
+                break;
+            case "send":
+                sendFile(ctx, response.getCommand(), response.getFilename());
+                break;
         }
         LOG.log(Level.INFO, response.getCommand()+ ": " + response.getMessage());
     }
 
-//    @Override
-//    public boolean acceptInboundMessage(Object msg) throws Exception {
-//        return super.acceptInboundMessage(msg);
-//    }
-
     private void saveFile(Response msg) throws IOException {
-        File file = new File(rootPath, msg.getFilename());
+        File file = new File(Client.getRootPath(), msg.getFilename());
        try(RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
            raf.seek(msg.getPosition());
            raf.write(msg.getFile());
        }
     }
 
-//    private void workLoop(ChannelHandlerContext chf){
-//        Scanner scanner = new Scanner(System.in);
-//        String command;
-//            System.out.println("Enter your actions \n");
-//            command = scanner.nextLine();
-//            switch (command) {
-//                case "send":
-//                    System.out.println("Введите имя загружаемого файла");
-//                    String filename = new Scanner(System.in).nextLine();
-//                    sendFile(chf, command, filename);
-//                    break;
-//                case "get":
-//                    request.setCommand(command);
-//                    System.out.println("Введите имя файла, который хотите получить");
-//                    request.setFilename(scanner.nextLine());
-//                    chf.writeAndFlush(request);
-//                    break;
-//                case "break":
-//                    LOG.log(Level.INFO, "You want to disconnect? Okay, let`s try!");
-//                    chf.close();
-//                default:
-//                    request.setCommand(command);
-//                    chf.writeAndFlush(request);
-//                    break;
-//
-//        }
-//    }
 
     private void sendFile(ChannelHandlerContext ctx, String command, String filename){
         request.setCommand(command);
         request.setFilename(filename);
         byte[] buffer = new byte[1024*512];
-        File file = new File(rootPath, filename);
+        File file = new File(Client.getRootPath(), filename);
         try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
             request.setPosition(raf.getFilePointer());
             int read = raf.read(buffer);

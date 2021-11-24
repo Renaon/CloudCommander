@@ -16,6 +16,7 @@ import ru.cloud.cloudcommander.communicate.Request;
 import ru.cloud.cloudcommander.communicate.Response;
 import ru.cloud.cloudcommander.client.handlers.ActionHandler;
 import java.io.IOException;
+import java.util.List;
 
 public class Client  implements Runnable{
     private static Logger LOG = LogManager.getLogger("log4j2.xml");
@@ -24,15 +25,29 @@ public class Client  implements Runnable{
     private static  int PORT = 71;
     private static  String ADDRESS = "localhost";
 
+    private static String rootPath = "src/main/java/ru/cloud/cloudcommander/client/clientroot";
+    private static List<String> filesList;
+
     public Client(int port, String address) {
         PORT = port;
         ADDRESS = address;
+    }
+
+    public synchronized static List<String> getFilesList() {
+        return filesList;
+    }
+
+    public synchronized static void setFilesList(List<String> filesList) {
+        Client.filesList = filesList;
     }
 
     public static synchronized SocketChannel getChannel() {
         return channel;
     }
 
+    public static String getRootPath() {
+        return rootPath;
+    }
 
     public static void start() {
         NioEventLoopGroup con = new NioEventLoopGroup();
@@ -60,21 +75,6 @@ public class Client  implements Runnable{
             LOG.log(Level.ERROR, "Клиент пидр и решил отключиться самостоятельно");
             con.shutdownGracefully();
         }
-    }
-
-//    private static void test() throws IOException {
-//        LOG.log(Level.INFO, "Right this sec send test message");
-//        request = new Request();
-//        request.setCommand("ping");
-//        request.setMessage("It`s a test message");
-//        channel.writeAndFlush(request);
-//        LOG.log(Level.INFO, "Message was sent");
-//    }
-
-
-
-    public static void main(String[] args) {
-        new Client(PORT, ADDRESS).start();
     }
 
     @Override

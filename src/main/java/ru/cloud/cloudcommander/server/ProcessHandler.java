@@ -12,7 +12,7 @@ import java.io.*;
 import java.util.*;
 
 public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
-    private String rootPath = "D://Projects//Cloud Commander//src//main//java//ru//cloud//cloudcommander//server//root//";
+    private String rootPath = "src/main/java/ru/cloud/cloudcommander/server/root";
     private Logger LOG = LogManager.getLogger("log4j2.xml");
     private Response response;
     ChannelHandlerContext ctxChannelHandlerContext;
@@ -25,67 +25,32 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
 
     @Override
     public boolean acceptInboundMessage(Object msg) throws Exception {
-        LOG.log(Level.INFO, "acceptInboundMessage");
-        Request request = (Request) msg;
-
-        LOG.log(Level.INFO, "Trying to accept user data");
-        response = new Response();
-        switch (request.getCommand()) {
-            case "send":
-                saveFile(ctxChannelHandlerContext, request);
-                break;
-            case "ping":
-                LOG.log(Level.INFO, request.getMessage());
-                response.setCommand(request.getCommand());
-                response.setMessage("You are awesome!");
-                ctxChannelHandlerContext.writeAndFlush(response);
-                break;
-            case "get":
-                sendFile(ctxChannelHandlerContext, request);
-                break;
-            case "ls":
-                ls(ctxChannelHandlerContext,request);
-                break;
-            case "mkdir":
-                mkdir(ctxChannelHandlerContext, request);
-                break;
-            case "cd":
-                setRootPath(request.getMessage());
-                break;
-            case "report":
-                LOG.log(Level.INFO, "Operation " + request.getCommand() + " " + request.getMessage());
-                break;
-            case "exit":
-                LOG.log(Level.INFO, "Client want to disconnect");
-            default:
-                LOG.log(Level.INFO, request.getCommand());
-        }
-
         return super.acceptInboundMessage(msg);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Request msg){
+
         LOG.log(Level.INFO, "Trying to accept user data");
         response = new Response();
         switch (msg.getCommand()) {
             case "send":
-                saveFile(ctx, msg);
+                saveFile(ctxChannelHandlerContext, msg);
                 break;
             case "ping":
                 LOG.log(Level.INFO, msg.getMessage());
                 response.setCommand(msg.getCommand());
                 response.setMessage("You are awesome!");
-                ctx.writeAndFlush(response);
+                ctxChannelHandlerContext.writeAndFlush(response);
                 break;
             case "get":
-                sendFile(ctx, msg);
+                sendFile(ctxChannelHandlerContext, msg);
                 break;
             case "ls":
-                ls(ctx,msg);
+                ls(ctxChannelHandlerContext, msg);
                 break;
             case "mkdir":
-                mkdir(ctx, msg);
+                mkdir(ctxChannelHandlerContext, msg);
                 break;
             case "cd":
                 setRootPath(msg.getMessage());
@@ -131,6 +96,7 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
                 }else {
                     response.setFile(buffer);
                 }
+                response.setMessage("Server send you present");
                 ctx.writeAndFlush(response);
         } catch (IOException e) {
             LOG.error(e);
