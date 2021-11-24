@@ -11,6 +11,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import ru.cloud.cloudcommander.communicate.Request;
 
 
 public class Server {
@@ -37,14 +38,14 @@ public class Server {
                         @Override
                         protected void initChannel(SocketChannel channel) throws Exception {
                             channel.pipeline().addLast(
-                                    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
+                                    new ObjectDecoder(ClassResolvers.weakCachingResolver(Request.class.getClassLoader())),
                                     new ObjectEncoder(),
                                     new ProcessHandler()
                             );
                         }
-                    });
-//                    .option(ChannelOption.SO_BACKLOG, 128)
-//                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    })
+                    .option(ChannelOption.SO_BACKLOG, 128)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture f = bootstrap.bind(PORT).sync();
             LOG.log(Level.INFO, "Server started on " + PORT + " port");
