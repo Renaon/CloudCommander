@@ -43,16 +43,16 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
        }
     }
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx){
-//        Client.setChannel(ctx.channel());
-//        LOG.log(Level.INFO, "Right this sec send test message");
-//        request = new Request();
-//        request.setCommand("ping");
-//        request.setMessage("It`s a test message");
-//        ctx.writeAndFlush(request);
-//        LOG.log(Level.INFO, "Message was sent");
-    }
+//    @Override
+//    public void channelActive(ChannelHandlerContext ctx){
+////        Client.setChannel(ctx.channel());
+////        LOG.log(Level.INFO, "Right this sec send test message");
+////        request = new Request();
+////        request.setCommand("ping");
+////        request.setMessage("It`s a test message");
+////        ctx.writeAndFlush(request);
+////        LOG.log(Level.INFO, "Message was sent");
+//    }
 
     private void workLoop(ChannelHandlerContext chf){
         Scanner scanner = new Scanner(System.in);
