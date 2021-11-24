@@ -1,7 +1,6 @@
 package ru.cloud.cloudcommander.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -13,14 +12,13 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.client.communicate.Request;
-import ru.cloud.cloudcommander.client.communicate.Response;
+import ru.cloud.cloudcommander.communicate.Request;
+import ru.cloud.cloudcommander.communicate.Response;
 import ru.cloud.cloudcommander.client.handlers.ActionHandler;
 import java.io.IOException;
 
 public class Client  implements Runnable{
     private static Logger LOG = LogManager.getLogger("log4j2.xml");
-    static Request request = new Request();
     private static SocketChannel channel;
 
     private static  int PORT = 71;
@@ -32,7 +30,7 @@ public class Client  implements Runnable{
     }
 
     public static synchronized SocketChannel getChannel() {
-        return Client.channel;
+        return channel;
     }
 
 
@@ -45,7 +43,7 @@ public class Client  implements Runnable{
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel nioSocketChannel) throws Exception {
-                            Client.channel = nioSocketChannel;
+                            channel = nioSocketChannel;
                             nioSocketChannel.pipeline().addLast(
                                     new ObjectDecoder(ClassResolvers.weakCachingResolver(Response.class.getClassLoader())),
                                     new ObjectEncoder(),
@@ -54,7 +52,6 @@ public class Client  implements Runnable{
                         }
                     });
             ChannelFuture chf = client.connect(ADDRESS, PORT).sync();
-            test(channel);
             LOG.log(Level.INFO, "Connection success. Ready to work");
             chf.channel().closeFuture().sync();
         }catch (Exception e) {
@@ -65,15 +62,14 @@ public class Client  implements Runnable{
         }
     }
 
-    private static void test(SocketChannel ctx) throws IOException {
-        LOG.log(Level.INFO, "Right this sec send test message");
-        request = new Request();
-        request.setCommand("ping");
-        request.setMessage("It`s a test message");
-        ctx.writeAndFlush(request);
-        ctx.flush();
-        LOG.log(Level.INFO, "Message was sent");
-    }
+//    private static void test() throws IOException {
+//        LOG.log(Level.INFO, "Right this sec send test message");
+//        request = new Request();
+//        request.setCommand("ping");
+//        request.setMessage("It`s a test message");
+//        channel.writeAndFlush(request);
+//        LOG.log(Level.INFO, "Message was sent");
+//    }
 
 
 

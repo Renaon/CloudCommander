@@ -1,10 +1,10 @@
-package ru.cloud.cloudcommander.server.communicate;
+package ru.cloud.cloudcommander.communicate;
 
 import ru.cloud.cloudcommander.CloudFacade;
 
 import java.util.List;
 
-public class Request implements CloudFacade {
+public class Response implements CloudFacade {
     private String filename;
     private int value;
     private String command;

@@ -5,14 +5,12 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.client.Client;
-import ru.cloud.cloudcommander.client.communicate.Request;
-import ru.cloud.cloudcommander.client.communicate.Response;
+import ru.cloud.cloudcommander.communicate.Request;
+import ru.cloud.cloudcommander.communicate.Response;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.List;
-import java.util.Scanner;
 
 public class ActionHandler extends SimpleChannelInboundHandler<Response> {
 
@@ -32,8 +30,12 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
             }
         }
         LOG.log(Level.INFO, response.getCommand()+ ": " + response.getMessage());
-//        workLoop(ctx);
     }
+
+//    @Override
+//    public boolean acceptInboundMessage(Object msg) throws Exception {
+//        return super.acceptInboundMessage(msg);
+//    }
 
     private void saveFile(Response msg) throws IOException {
         File file = new File(rootPath, msg.getFilename());
@@ -43,44 +45,33 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
        }
     }
 
-//    @Override
-//    public void channelActive(ChannelHandlerContext ctx){
-////        Client.setChannel(ctx.channel());
-////        LOG.log(Level.INFO, "Right this sec send test message");
-////        request = new Request();
-////        request.setCommand("ping");
-////        request.setMessage("It`s a test message");
-////        ctx.writeAndFlush(request);
-////        LOG.log(Level.INFO, "Message was sent");
+//    private void workLoop(ChannelHandlerContext chf){
+//        Scanner scanner = new Scanner(System.in);
+//        String command;
+//            System.out.println("Enter your actions \n");
+//            command = scanner.nextLine();
+//            switch (command) {
+//                case "send":
+//                    System.out.println("Введите имя загружаемого файла");
+//                    String filename = new Scanner(System.in).nextLine();
+//                    sendFile(chf, command, filename);
+//                    break;
+//                case "get":
+//                    request.setCommand(command);
+//                    System.out.println("Введите имя файла, который хотите получить");
+//                    request.setFilename(scanner.nextLine());
+//                    chf.writeAndFlush(request);
+//                    break;
+//                case "break":
+//                    LOG.log(Level.INFO, "You want to disconnect? Okay, let`s try!");
+//                    chf.close();
+//                default:
+//                    request.setCommand(command);
+//                    chf.writeAndFlush(request);
+//                    break;
+//
+//        }
 //    }
-
-    private void workLoop(ChannelHandlerContext chf){
-        Scanner scanner = new Scanner(System.in);
-        String command;
-            System.out.println("Enter your actions \n");
-            command = scanner.nextLine();
-            switch (command) {
-                case "send":
-                    System.out.println("Введите имя загружаемого файла");
-                    String filename = new Scanner(System.in).nextLine();
-                    sendFile(chf, command, filename);
-                    break;
-                case "get":
-                    request.setCommand(command);
-                    System.out.println("Введите имя файла, который хотите получить");
-                    request.setFilename(scanner.nextLine());
-                    chf.writeAndFlush(request);
-                    break;
-                case "break":
-                    LOG.log(Level.INFO, "You want to disconnect? Okay, let`s try!");
-                    chf.close();
-                default:
-                    request.setCommand(command);
-                    chf.writeAndFlush(request);
-                    break;
-
-        }
-    }
 
     private void sendFile(ChannelHandlerContext ctx, String command, String filename){
         request.setCommand(command);

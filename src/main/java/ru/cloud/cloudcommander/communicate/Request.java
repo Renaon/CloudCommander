@@ -1,17 +1,17 @@
-package ru.cloud.cloudcommander.client.communicate;
+package ru.cloud.cloudcommander.communicate;
 
 import ru.cloud.cloudcommander.CloudFacade;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Response implements CloudFacade {
+public class Request implements CloudFacade {
     private String filename;
     private int value;
     private String command;
     private List<String> fileList;
     private String message;
     private byte[] file;
-    private String answer;
     private long position;
 
     @Override

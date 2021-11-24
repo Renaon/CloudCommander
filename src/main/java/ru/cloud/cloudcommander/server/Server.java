@@ -11,7 +11,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.server.communicate.Request;
+import ru.cloud.cloudcommander.communicate.Request;
 
 
 public class Server {
@@ -44,9 +44,9 @@ public class Server {
                                     new StringHandler()
                             );
                         }
-                    });
-//                    .option(ChannelOption.SO_BACKLOG, 128)
-//                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    })
+                    .option(ChannelOption.SO_BACKLOG, 128)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture f = bootstrap.bind(PORT).sync();
             LOG.log(Level.INFO, "Server started on " + PORT + " port");
