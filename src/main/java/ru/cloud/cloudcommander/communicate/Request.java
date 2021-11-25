@@ -2,12 +2,10 @@ package ru.cloud.cloudcommander.communicate;
 
 import ru.cloud.cloudcommander.CloudFacade;
 
-import java.io.Serializable;
 import java.util.List;
 
 public class Request implements CloudFacade {
     private String filename;
-    private int value;
     private String command;
     private List<String> fileList;
     private String message;
@@ -62,16 +60,6 @@ public class Request implements CloudFacade {
     @Override
     public void setFiles(List<String> files) {
         this.fileList = files;
-    }
-
-    @Override
-    public int getValue() {
-        return value;
-    }
-
-    @Override
-    public void setValue(int value) {
-        this.value = value;
     }
 
     @Override

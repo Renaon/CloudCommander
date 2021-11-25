@@ -14,9 +14,6 @@ public interface CloudFacade extends Serializable {
      List<String> getFiles();
      void setFiles(List<String> files);
 
-     int getValue();
-     void setValue(int value);
-
      String getMessage();
      void setMessage(String message);
 
