@@ -6,12 +6,10 @@ import java.util.List;
 
 public class Response implements CloudFacade {
     private String filename;
-    private int value;
     private String command;
     private List<String> fileList;
     private String message;
     private byte[] file;
-    private String answer;
     private long position;
 
     @Override
@@ -62,16 +60,6 @@ public class Response implements CloudFacade {
     @Override
     public void setFiles(List<String> files) {
         this.fileList = files;
-    }
-
-    @Override
-    public int getValue() {
-        return value;
-    }
-
-    @Override
-    public void setValue(int value) {
-        this.value = value;
     }
 
     @Override

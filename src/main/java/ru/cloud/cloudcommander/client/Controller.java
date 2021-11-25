@@ -1,24 +1,23 @@
 package ru.cloud.cloudcommander.client;
 
 import io.netty.channel.socket.SocketChannel;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.cloud.cloudcommander.communicate.Request;
 import ru.cloud.cloudcommander.client.handlers.CloudController;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Objects;
 
 public class Controller implements CloudController {
     public TextField userdata;
-    public TableView<String> filestable;
+    public TextArea serverFiles;
+    public TextArea clientFiles;
     private SocketChannel channel;
     private Logger LOG = LogManager.getLogger("log4j2.xml");
 
@@ -66,12 +65,16 @@ public class Controller implements CloudController {
         channel.writeAndFlush(request);
         try{
             while (Client.getFilesList()==null) Thread.sleep(500);
-            ObservableList<String> filesList = FXCollections.observableArrayList(Client.getFilesList());
-            filestable.setItems(filesList);
+            for (String i: Client.getFilesList()) serverFiles.appendText(i + "\n");
         }catch (InterruptedException e){
             LOG.error(e);
         }
 
+        File dir = new File(Client.getRootPath());
+
+        for(File i: Objects.requireNonNull(dir.listFiles())){
+            clientFiles.appendText(i.getName() + "\n");
+        }
 
     }
 

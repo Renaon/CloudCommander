@@ -12,10 +12,9 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.communicate.Request;
 import ru.cloud.cloudcommander.communicate.Response;
 import ru.cloud.cloudcommander.client.handlers.ActionHandler;
-import java.io.IOException;
+
 import java.util.List;
 
 public class Client  implements Runnable{
@@ -33,11 +32,11 @@ public class Client  implements Runnable{
         ADDRESS = address;
     }
 
-    public synchronized static List<String> getFilesList() {
+    public static List<String> getFilesList() {
         return filesList;
     }
 
-    public synchronized static void setFilesList(List<String> filesList) {
+    public static void setFilesList(List<String> filesList) {
         Client.filesList = filesList;
     }
 

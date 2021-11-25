@@ -106,8 +106,12 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
 
     private void ls(ChannelHandlerContext ctx, Request msg){
         File dir = new File(rootPath);
-        List<String> list = new ArrayList<>(Collections.singleton(Arrays
-                .asList(Objects.requireNonNull(dir.listFiles())).toString()));
+
+        List<String> list = new ArrayList<>();
+        for(File i: Objects.requireNonNull(dir.listFiles())){
+            list.add(i.getName());
+        }
+
         response.setFiles(list);
         response.setCommand(msg.getCommand());
         ctx.writeAndFlush(response);
