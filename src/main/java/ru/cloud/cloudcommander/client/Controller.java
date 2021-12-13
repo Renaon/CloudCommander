@@ -1,9 +1,16 @@
 package ru.cloud.cloudcommander.client;
 
 import io.netty.channel.socket.SocketChannel;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,19 +25,29 @@ public class Controller implements CloudController {
     public TextField userdata;
     public TextArea serverFiles;
     public TextArea clientFiles;
+    private Stage loginStage;
     private SocketChannel channel;
     private Logger LOG = LogManager.getLogger("log4j2.xml");
 
     private static  int PORT = 71;
     private static  String ADDRESS = "localhost";
 
+    private boolean authenticated = false;
+
+    private LoginController loginController;
+
     @Override
     public void download(ActionEvent actionEvent) {
-        String filename = userdata.getText();
-        Request request = new Request();
-        request.setCommand("get");
-        request.setFilename(filename);
-        channel.writeAndFlush(request);
+        if (authenticated) {
+            String filename = userdata.getText();
+            Request request = new Request();
+            request.setCommand("get");
+            request.setFilename(filename);
+            channel.writeAndFlush(request);
+
+        }else {
+            LOG.log(Level.WARN,"You are not log in");
+        }
 
     }
 
@@ -60,6 +77,7 @@ public class Controller implements CloudController {
 
     @Override
     public void refresh(ActionEvent actionEvent) {
+        serverFiles.clear();
         Request request = new Request();
         request.setCommand("ls");
         channel.writeAndFlush(request);
@@ -70,12 +88,20 @@ public class Controller implements CloudController {
             LOG.error(e);
         }
 
+        initClientRoot();
+    }
+
+    private void initClientRoot(){
+        clientFiles.clear();
         File dir = new File(Client.getRootPath());
-
-        for(File i: Objects.requireNonNull(dir.listFiles())){
-            clientFiles.appendText(i.getName() + "\n");
+        try {
+            for(File i: Objects.requireNonNull(dir.listFiles())){
+                clientFiles.appendText(i.getName() + "\n");
+            }
+        }catch (NullPointerException e){
+            LOG.log(Level.WARN, "Папки не существует. Создаем.");
+            if(dir.mkdir()) initClientRoot();
         }
-
     }
 
     @Override
@@ -87,13 +113,14 @@ public class Controller implements CloudController {
         }
     }
 
-    public void connect(ActionEvent actionEvent)  {
+    public void connect()  {
         Thread starter = new Thread(new Client(PORT, ADDRESS));
         starter.start();
         try {
             while (Client.getChannel() == null) Thread.sleep(500);
-            channel = Client.getChannel();
+            this.channel = Client.getChannel();
             test();
+
         } catch (IOException | InterruptedException e) {
             LOG.error(e);
         }
@@ -109,4 +136,36 @@ public class Controller implements CloudController {
         LOG.log(Level.INFO, "Message was sent");
     }
 
+    public void authentication(String login, String password){
+        if (Client.getChannel() == null) connect();
+        Request request = new Request();
+        request.setCommand("auth");
+        request.setPassword(password);
+        request.setMessage(login);
+        channel.writeAndFlush(request);
+    }
+
+    public void LogIN(ActionEvent actionEvent) {
+        if(loginStage == null) createLoginWindow();
+        Platform.runLater( () -> loginStage.show());
+    }
+
+    private void createLoginWindow() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/login.fxml"));
+            Parent root = fxmlLoader.load();
+            loginStage = new Stage();
+            loginStage.setTitle("LOG IN");
+            loginStage.setScene(new Scene(root, 225, 250));
+
+            loginStage.initModality(Modality.APPLICATION_MODAL);
+            loginStage.initStyle(StageStyle.UTILITY);
+
+            loginController = fxmlLoader.getController();
+            loginController.setController(this);
+        } catch (IOException e) {
+            LOG.error(e);
+        }
+
+    }
 }

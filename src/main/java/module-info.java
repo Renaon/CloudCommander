@@ -12,6 +12,8 @@ module ru.cloud.cloudcommander {
     requires com.fasterxml.jackson.core;
     requires com.fasterxml.jackson.annotation;
     requires com.fasterxml.jackson.databind;
+    requires sqlite.jdbc;
+    requires java.sql;
 
     opens ru.cloud.cloudcommander to javafx.fxml;
     exports ru.cloud.cloudcommander;

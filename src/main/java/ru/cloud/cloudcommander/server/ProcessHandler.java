@@ -12,7 +12,7 @@ import java.io.*;
 import java.util.*;
 
 public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
-    private String rootPath = "src/main/java/ru/cloud/cloudcommander/server/root";
+    private String rootPath = "src/main/java/ru/cloud/cloudcommander/server/root/";
     private Logger LOG = LogManager.getLogger("log4j2.xml");
     private Response response;
     ChannelHandlerContext ctxChannelHandlerContext;
@@ -58,11 +58,23 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
             case "report":
                 LOG.log(Level.INFO, "Operation " + msg.getCommand() + " " + msg.getMessage());
                 break;
+            case "auth":
+                LOG.log(Level.INFO, "User is trying to log in");
+                authorization(ctxChannelHandlerContext, msg);
+                break;
             case "exit":
                 LOG.log(Level.INFO, "Client want to disconnect");
             default:
                 LOG.log(Level.INFO, msg.getCommand());
         }
+    }
+
+    private void authorization(ChannelHandlerContext ctxChannelHandlerContext, Request msg) {
+        String login = msg.getMessage().trim();
+        String password = msg.getPassword().trim();
+        Response response = new Response();
+        JDBCAuth auth = new JDBCAuth(login, password);
+
     }
 
     private void saveFile(ChannelHandlerContext ctx, Request msg){

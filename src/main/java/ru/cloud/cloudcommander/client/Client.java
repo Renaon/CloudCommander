@@ -26,6 +26,15 @@ public class Client  implements Runnable{
 
     private static String rootPath = "src/main/java/ru/cloud/cloudcommander/client/clientroot";
     private static List<String> filesList;
+    private static boolean authenticated = false;
+
+    public static boolean isAuthenticated() {
+        return authenticated;
+    }
+
+    public static void setAuthenticated(boolean authenticated) {
+        Client.authenticated = authenticated;
+    }
 
     public Client(int port, String address) {
         PORT = port;
