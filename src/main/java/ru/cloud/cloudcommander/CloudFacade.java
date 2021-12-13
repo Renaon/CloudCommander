@@ -23,4 +23,7 @@ public interface CloudFacade extends Serializable {
      void setPosition(long position);
      long getPosition();
 
+     void setPassword(String password);
+     String getPassword();
+
 }

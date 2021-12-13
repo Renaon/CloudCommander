@@ -22,12 +22,11 @@
           <menus>
               <Menu text="File">
                  <items>
+                     <MenuItem text="Log In" onAction="#LogIN"/>
                      <MenuItem onAction="#ping" text=" Ping" />
-
                      <MenuItem text="Exit" />
                  </items>
               </Menu>
-              <Menu text="Connect" onAction="#connect" />
           </menus>
        </MenuBar>
        <HBox>

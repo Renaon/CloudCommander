@@ -12,6 +12,18 @@ public class Response implements CloudFacade {
     private byte[] file;
     private long position;
 
+    private String password;
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public long getPosition(){
         return position;

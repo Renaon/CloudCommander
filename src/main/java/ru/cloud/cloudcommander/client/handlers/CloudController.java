@@ -10,5 +10,5 @@ public interface CloudController {
     public  void upload(ActionEvent actionEvent) ;
     public  void refresh(ActionEvent actionEvent) ;
     public  void ping(ActionEvent actionEvent) ;
-    public void connect(ActionEvent actionEvent) throws IOException, InterruptedException;
+    public void connect() throws IOException, InterruptedException;
 }
