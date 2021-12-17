@@ -33,11 +33,13 @@
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="35854ed9-e57e-4be2-8ad3-c41f88d4f061">
       <console name="CloudBase" type="STANDARD" schema="main" session="Main"><![CDATA[use CloudBase;
-select Name from users where Name='test' and Password='0';]]></console>
+select Name from users where Name='test' and Password='test';
+insert into users (Name, Password) values ('test', 'test');]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
     <open-files>
+      <object connection-id="35854ed9-e57e-4be2-8ad3-c41f88d4f061" object-ref="schemas/main/tables/users" />
       <object connection-id="35854ed9-e57e-4be2-8ad3-c41f88d4f061" object-ref="consoles/CloudBase" />
     </open-files>
   </component>

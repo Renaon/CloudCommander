@@ -8,7 +8,7 @@ public class JDBCAuth {
     private String login;
     private String password;
     private static Statement stmt;
-    private boolean isAuthenticated;
+    private static boolean isAuthenticated;
     private PreparedStatement preparedStatement;
 
     public String getLogin() {
@@ -55,22 +55,22 @@ public class JDBCAuth {
     private void connect() throws SQLException {
         connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/CloudBase.db");
         stmt = connection.createStatement();
-        System.out.println(tryAuth());
+        isAuthenticated = tryAuth();
     }
 
     public boolean tryAuth() {
         String result = null;
         try {
             if (!connection.isClosed()) {
-                preparedStatement = connection.prepareStatement("SELECT Name FROM users WHERE Name= ? and Password=?;");
+                preparedStatement = connection.prepareStatement(
+                        "SELECT Name FROM 'users' WHERE Name=? and Password=?;");
                 preparedStatement.setString(1, login);
                 preparedStatement.setString(2, password);
                 ResultSet rs = preparedStatement.executeQuery();
                 while (rs.next()) {
                     result = rs.getString("Name");
                 }
-                System.out.println(result);
-
+                return result!=null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
