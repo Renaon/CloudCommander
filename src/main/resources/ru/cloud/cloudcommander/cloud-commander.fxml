@@ -24,7 +24,7 @@
                  <items>
                      <MenuItem text="Log In" onAction="#LogIN"/>
                      <MenuItem onAction="#ping" text=" Ping" />
-                     <MenuItem text="Exit" />
+                     <MenuItem text="Exit" onAction="#exit" />
                  </items>
               </Menu>
           </menus>

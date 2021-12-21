@@ -15,13 +15,14 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.cloud.cloudcommander.communicate.Request;
-import ru.cloud.cloudcommander.client.handlers.CloudController;
+import ru.cloud.cloudcommander.communicate.UserData;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Objects;
 
-public class Controller implements CloudController {
+public class Controller {
     public TextField userdata;
     public TextArea serverFiles;
     public TextArea clientFiles;
@@ -32,11 +33,12 @@ public class Controller implements CloudController {
     private static  int PORT = 71;
     private static  String ADDRESS = "localhost";
 
+    private String login;
+
     private boolean authenticated = false;
 
     private LoginController loginController;
 
-    @Override
     public void download(ActionEvent actionEvent) {
         if (authenticated) {
             String filename = userdata.getText();
@@ -47,53 +49,62 @@ public class Controller implements CloudController {
 
         }else {
             LOG.log(Level.WARN,"You are not log in");
+            disconnect();
         }
 
     }
 
-    @Override
     public void upload(ActionEvent actionEvent) {
-        Request request = new Request();
-        String filename = userdata.getText();
-        request.setCommand("send");
-        request.setFilename(filename);
-        byte[] buffer = new byte[1024*512];
-        File file = new File(Client.getRootPath(), filename);
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            request.setPosition(raf.getFilePointer());
-            int read = raf.read(buffer);
-            if(read< buffer.length && read != -1){
-                byte[] tmp = new byte[read];
-                System.arraycopy(buffer, 0, tmp, 0, read);
-                request.setFile(tmp);
-            }else {
-                request.setFile(buffer);
+        if (authenticated) {
+            Request request = new Request();
+            String filename = userdata.getText();
+            request.setCommand("send");
+            request.setFilename(filename);
+            byte[] buffer = new byte[1024 * 512];
+            File file = new File(Client.getRootPath(), filename);
+            try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
+                request.setPosition(raf.getFilePointer());
+                int read = raf.read(buffer);
+                if (read < buffer.length && read != -1) {
+                    byte[] tmp = new byte[read];
+                    System.arraycopy(buffer, 0, tmp, 0, read);
+                    request.setFile(tmp);
+                } else {
+                    request.setFile(buffer);
+                }
+                channel.writeAndFlush(request);
+            } catch (IOException e) {
+                LOG.error(e);
             }
-            channel.writeAndFlush(request);
-        } catch (IOException e) {
-            LOG.error(e);
+        }else {
+            LOG.error("You are not Logged INN");
+            disconnect();
         }
     }
 
-    @Override
     public void refresh(ActionEvent actionEvent) {
-        serverFiles.clear();
-        Request request = new Request();
-        request.setCommand("ls");
-        channel.writeAndFlush(request);
-        try{
-            while (Client.getFilesList()==null) Thread.sleep(500);
-            for (String i: Client.getFilesList()) serverFiles.appendText(i + "\n");
-        }catch (InterruptedException e){
-            LOG.error(e);
-        }
+        if (authenticated) {
+            serverFiles.clear();
+            Request request = new Request();
+            request.setCommand("ls");
+            channel.writeAndFlush(request);
+            try {
+                while (Client.getFilesList() == null) Thread.sleep(500);
+                for (String i : Client.getFilesList()) serverFiles.appendText(i + "\n");
+            } catch (InterruptedException e) {
+                LOG.error(e);
+            }
 
-        initClientRoot();
+            initClientRoot();
+        }else {
+            LOG.error("You are not Logged INN");
+            disconnect();
+        }
     }
 
     private void initClientRoot(){
         clientFiles.clear();
-        File dir = new File(Client.getRootPath());
+        File dir = new File(Client.getRootPath() + "/" + login);
         try {
             for(File i: Objects.requireNonNull(dir.listFiles())){
                 clientFiles.appendText(i.getName() + "\n");
@@ -104,7 +115,6 @@ public class Controller implements CloudController {
         }
     }
 
-    @Override
     public void ping(ActionEvent actionEvent){
         try {
             test();
@@ -138,11 +148,29 @@ public class Controller implements CloudController {
 
     public void authentication(String login, String password){
         if (Client.getChannel() == null) connect();
+        this.login = login;
+        UserData auth = new UserData();
+        LOG.log(Level.INFO, "Trying to send user data");
+        auth.setPassword(password);
+        auth.setLogin(login);
         Request request = new Request();
         request.setCommand("auth");
-        request.setPassword(password);
-        request.setMessage(login);
+        request.setUserData(auth);
         channel.writeAndFlush(request);
+        try {
+            int i=0;
+            while (!Client.isAuthenticated()){
+                if(i==10) break;
+                Thread.sleep(500);
+                i++;
+                LOG.log(Level.INFO, "Success: " + login);
+                this.authenticated = true;
+            }
+        } catch (InterruptedException e) {
+            LOG.log(Level.ERROR, e);
+        }
+
+
     }
 
     public void LogIN(ActionEvent actionEvent) {
@@ -168,4 +196,10 @@ public class Controller implements CloudController {
         }
 
     }
+
+    private void disconnect(){
+        channel.close();
+    }
+
+    public void exit(ActionEvent actionEvent) { disconnect();}
 }

@@ -11,17 +11,23 @@ public class Response implements CloudFacade {
     private String message;
     private byte[] file;
     private long position;
+    private UserData userData;
+    private boolean autorisate;
 
-    private String password;
-
-    @Override
-    public String getPassword() {
-        return password;
+    public boolean isAutorisate() {
+        return autorisate;
     }
 
-    @Override
-    public void setPassword(String password) {
-        this.password = password;
+    public void setAutorisate(boolean autorisate) {
+        this.autorisate = autorisate;
+    }
+
+    public UserData getUserData() {
+        return userData;
+    }
+
+    public void setUserData(UserData userData) {
+        this.userData = userData;
     }
 
     @Override

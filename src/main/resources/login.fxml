@@ -26,6 +26,5 @@
    </TextField>
    <HBox prefHeight="100.0" prefWidth="200.0">
       <Button mnemonicParsing="false" text="Login" HBox.hgrow="ALWAYS" onAction="#tryToAuth" fx:id="connectButton"/>
-      <Button mnemonicParsing="false" text="Register" HBox.hgrow="ALWAYS"/>
    </HBox>
 </VBox>

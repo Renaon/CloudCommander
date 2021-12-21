@@ -38,10 +38,7 @@ insert into users (Name, Password) values ('test', 'test');]]></console>
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
-    <open-files>
-      <object connection-id="35854ed9-e57e-4be2-8ad3-c41f88d4f061" object-ref="schemas/main/tables/users" />
-      <object connection-id="35854ed9-e57e-4be2-8ad3-c41f88d4f061" object-ref="consoles/CloudBase" />
-    </open-files>
+    <open-files />
   </component>
   <component name="DBNavigator.Project.DatabaseSessionManager">
     <connection id="35854ed9-e57e-4be2-8ad3-c41f88d4f061" />

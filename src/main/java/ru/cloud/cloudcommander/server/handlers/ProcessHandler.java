@@ -1,4 +1,4 @@
-package ru.cloud.cloudcommander.server;
+package ru.cloud.cloudcommander.server.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -7,6 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ru.cloud.cloudcommander.communicate.Request;
 import ru.cloud.cloudcommander.communicate.Response;
+import ru.cloud.cloudcommander.communicate.UserData;
+import ru.cloud.cloudcommander.server.JDBCAuth;
 
 import java.io.*;
 import java.util.*;
@@ -58,24 +60,27 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
             case "report":
                 LOG.log(Level.INFO, "Operation " + msg.getCommand() + " " + msg.getMessage());
                 break;
-            case "auth":
-                LOG.log(Level.INFO, "User is trying to log in");
-                authorization(ctxChannelHandlerContext, msg);
-                break;
             case "exit":
                 LOG.log(Level.INFO, "Client want to disconnect");
+                break;
+            case "auth":
+                LOG.log(Level.INFO, "Кто-то пытается залогиниться");
+                tryAuth(ctxChannelHandlerContext, msg.getUserData());
+                break;
             default:
                 LOG.log(Level.INFO, msg.getCommand());
         }
     }
 
-    private void authorization(ChannelHandlerContext ctxChannelHandlerContext, Request msg) {
-        String login = msg.getMessage().trim();
-        String password = msg.getPassword().trim();
+    private void tryAuth(ChannelHandlerContext channelHandlerContext, UserData userData){
+        JDBCAuth authorizer = new JDBCAuth(userData.getLogin(), userData.getPassword());
         Response response = new Response();
-        JDBCAuth auth = new JDBCAuth(login, password);
-
+        response.setAutorisate(authorizer.isIsAuthenticated());
+        response.setCommand("auth");
+        LOG.info("User " + userData.getLogin() + " has been authenticated");
+        channelHandlerContext.writeAndFlush(response);
     }
+
 
     private void saveFile(ChannelHandlerContext ctx, Request msg){
         LOG.log(Level.INFO, "Trying to get a file");

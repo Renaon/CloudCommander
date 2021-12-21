@@ -11,16 +11,14 @@ public class Request implements CloudFacade {
     private String message;
     private byte[] file;
     private long position;
-    private String password;
+    private UserData userData;
 
-    @Override
-    public String getPassword() {
-        return password;
+    public UserData getUserData() {
+        return userData;
     }
 
-    @Override
-    public void setPassword(String password) {
-        this.password = password;
+    public void setUserData(UserData userData) {
+        this.userData = userData;
     }
 
     @Override

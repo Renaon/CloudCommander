@@ -8,7 +8,7 @@ public class JDBCAuth {
     private String login;
     private String password;
     private static Statement stmt;
-    private static boolean isAuthenticated;
+    private boolean isAuthenticated;
     private PreparedStatement preparedStatement;
 
     public String getLogin() {
@@ -27,6 +27,10 @@ public class JDBCAuth {
         }finally {
             breaking();
         }
+    }
+
+    public boolean isIsAuthenticated() {
+        return isAuthenticated;
     }
 
     public JDBCAuth(String login, String password) {
@@ -70,13 +74,12 @@ public class JDBCAuth {
                 while (rs.next()) {
                     result = rs.getString("Name");
                 }
-                return result!=null;
             }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
-        return true;
+        return result!=null;
     }
 
     public static void main(String[] args) {

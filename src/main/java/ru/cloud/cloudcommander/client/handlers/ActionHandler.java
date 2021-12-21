@@ -26,15 +26,19 @@ public class ActionHandler extends SimpleChannelInboundHandler<Response> {
                 saveFile(response);
                 break;
             case "ls":
-//                List<String> list = response.getFiles();
-//                for (String file : list) {
-//                    System.out.print(file + "; ");
-//                }
                 Client.setFilesList(response.getFiles());
                 break;
             case "send":
                 sendFile(ctx, response.getCommand(), response.getFilename());
                 break;
+            case "auth":
+                if (response.isAutorisate()) {
+                    LOG.log(Level.INFO, "Мы смогли залогиниться");
+                    Client.setAuthenticated(response.isAutorisate());
+                }else {
+                    LOG.log(Level.INFO, "Авторизация неуспешна");
+                }
+
         }
         LOG.log(Level.INFO, response.getCommand()+ ": " + response.getMessage());
     }
