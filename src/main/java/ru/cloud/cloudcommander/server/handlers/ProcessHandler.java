@@ -1,47 +1,58 @@
-package ru.cloud.cloudcommander.server;
+package ru.cloud.cloudcommander.server.handlers;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ru.cloud.cloudcommander.server.communicate.Request;
-import ru.cloud.cloudcommander.server.communicate.Response;
+import ru.cloud.cloudcommander.communicate.Request;
+import ru.cloud.cloudcommander.communicate.Response;
+import ru.cloud.cloudcommander.communicate.UserData;
+import ru.cloud.cloudcommander.server.JDBCAuth;
 
 import java.io.*;
 import java.util.*;
 
 public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
-    private String rootPath = "D://Projects//Cloud Commander//src//main//java//ru//cloud//cloudcommander//server//root//";
+    private String rootPath = "src/main/java/ru/cloud/cloudcommander/server/root/";
     private Logger LOG = LogManager.getLogger("log4j2.xml");
     private Response response;
+    ChannelHandlerContext ctxChannelHandlerContext;
 
 
     public void channelActive(ChannelHandlerContext ctx){
         LOG.log(Level.INFO, "Someone connected");
+        this.ctxChannelHandlerContext = ctx;
+    }
+
+    @Override
+    public boolean acceptInboundMessage(Object msg) throws Exception {
+        return super.acceptInboundMessage(msg);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Request msg){
+
+        LOG.log(Level.INFO, "Trying to accept user data");
         response = new Response();
         switch (msg.getCommand()) {
             case "send":
-                saveFile(ctx, msg);
+                saveFile(ctxChannelHandlerContext, msg);
                 break;
             case "ping":
                 LOG.log(Level.INFO, msg.getMessage());
                 response.setCommand(msg.getCommand());
                 response.setMessage("You are awesome!");
-                ctx.writeAndFlush(response);
+                ctxChannelHandlerContext.writeAndFlush(response);
                 break;
             case "get":
-                sendFile(ctx, msg);
+                sendFile(ctxChannelHandlerContext, msg);
                 break;
             case "ls":
-                ls(ctx,msg);
+                ls(ctxChannelHandlerContext, msg);
                 break;
             case "mkdir":
-                mkdir(ctx, msg);
+                mkdir(ctxChannelHandlerContext, msg);
                 break;
             case "cd":
                 setRootPath(msg.getMessage());
@@ -51,10 +62,25 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
                 break;
             case "exit":
                 LOG.log(Level.INFO, "Client want to disconnect");
+                break;
+            case "auth":
+                LOG.log(Level.INFO, "Кто-то пытается залогиниться");
+                tryAuth(ctxChannelHandlerContext, msg.getUserData());
+                break;
             default:
                 LOG.log(Level.INFO, msg.getCommand());
         }
     }
+
+    private void tryAuth(ChannelHandlerContext channelHandlerContext, UserData userData){
+        JDBCAuth authorizer = new JDBCAuth(userData.getLogin(), userData.getPassword());
+        Response response = new Response();
+        response.setAutorisate(authorizer.isIsAuthenticated());
+        response.setCommand("auth");
+        LOG.info("User " + userData.getLogin() + " has been authenticated");
+        channelHandlerContext.writeAndFlush(response);
+    }
+
 
     private void saveFile(ChannelHandlerContext ctx, Request msg){
         LOG.log(Level.INFO, "Trying to get a file");
@@ -87,6 +113,7 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
                 }else {
                     response.setFile(buffer);
                 }
+                response.setMessage("Server send you present");
                 ctx.writeAndFlush(response);
         } catch (IOException e) {
             LOG.error(e);
@@ -96,8 +123,12 @@ public class ProcessHandler extends SimpleChannelInboundHandler<Request> {
 
     private void ls(ChannelHandlerContext ctx, Request msg){
         File dir = new File(rootPath);
-        List<String> list = new ArrayList<>(Collections.singleton(Arrays
-                .asList(Objects.requireNonNull(dir.listFiles())).toString()));
+
+        List<String> list = new ArrayList<>();
+        for(File i: Objects.requireNonNull(dir.listFiles())){
+            list.add(i.getName());
+        }
+
         response.setFiles(list);
         response.setCommand(msg.getCommand());
         ctx.writeAndFlush(response);

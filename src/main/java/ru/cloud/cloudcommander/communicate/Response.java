@@ -1,19 +1,34 @@
-package ru.cloud.cloudcommander.server.communicate;
+package ru.cloud.cloudcommander.communicate;
 
-import ru.cloud.cloudcommander.XtraCommunicate;
+import ru.cloud.cloudcommander.CloudFacade;
 
-import java.io.File;
 import java.util.List;
 
-public class Request implements XtraCommunicate{
+public class Response implements CloudFacade {
     private String filename;
-    private int value;
     private String command;
     private List<String> fileList;
     private String message;
     private byte[] file;
-    private String answer;
     private long position;
+    private UserData userData;
+    private boolean autorisate;
+
+    public boolean isAutorisate() {
+        return autorisate;
+    }
+
+    public void setAutorisate(boolean autorisate) {
+        this.autorisate = autorisate;
+    }
+
+    public UserData getUserData() {
+        return userData;
+    }
+
+    public void setUserData(UserData userData) {
+        this.userData = userData;
+    }
 
     @Override
     public long getPosition(){
@@ -63,16 +78,6 @@ public class Request implements XtraCommunicate{
     @Override
     public void setFiles(List<String> files) {
         this.fileList = files;
-    }
-
-    @Override
-    public int getValue() {
-        return value;
-    }
-
-    @Override
-    public void setValue(int value) {
-        this.value = value;
     }
 
     @Override
